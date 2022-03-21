@@ -12,3 +12,6 @@ spring:
     pool-size: 5
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
+logging:
+  level:
+    liquibase: FINE

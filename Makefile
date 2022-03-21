@@ -13,5 +13,5 @@ stop-development:
 		down
 
 psql:
-	PGPASSWORD=dd1b42145cf89501f1f41c3220b91337e83c7514f3dbff53f3c78e3a536fc8ff \
-	psql --host=ec2-176-34-105-15.eu-west-1.compute.amazonaws.com --username=hnlrzebjiwpxjg --dbname=dbcofcaflth2he
+	PGPASSWORD=01ff11e3a0ff2e756b6e949f1a3d76ec4fb852decbd9f2467c56ea220298925c \
+	psql --host=ec2-63-34-153-52.eu-west-1.compute.amazonaws.com --username=rimlcxkyldvdrj --dbname=d13q0bm88erbcf
