@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Team {
@@ -61,10 +59,10 @@ public class Team {
     private String getPlayers() {
         StringBuilder builder = new StringBuilder();
         List<Map.Entry<String, PlayerData>> relevantPlayers = team.entrySet()
-                                                                  .stream()
-                                                                  .filter(this::isRelevantPlayer)
-                                                                  .sorted(Comparator.comparingLong(o -> o.getValue().getTimestamp()))
-                                                                  .collect(Collectors.toList());
+                .stream()
+                .filter(this::isRelevantPlayer)
+                .sorted(Comparator.comparingLong(o -> o.getValue().getTimestamp()))
+                .collect(Collectors.toList());
 
         for (int i = 0; i < relevantPlayers.size(); i++) {
             builder.append(getPlayerReport(relevantPlayers.get(i), i));
@@ -90,12 +88,15 @@ public class Team {
                 System.lineSeparator();
     }
 
-    public String addSelf(String player) {
+    public String addSelf(Pair<Long, String> playerWithID) {
+        Long id = playerWithID.getLeft();
+        Optional<String> joke = PlayerTagService.getJokeByID(id);
+        String player = playerWithID.getRight();
         PlayerData playerData = team.get(player);
         if (playerData == null) {
             PlayerData data = new PlayerData(Status.READY);
             team.put(player, data);
-            return player + " вписался. Итого: " + getTotal();
+            return String.format("%s вписался%s. Итого: %s", player, joke.orElse(StringUtils.EMPTY), getTotal());
         } else {
             Status status = playerData.getStatus();
             if (Status.READY == status) {
@@ -105,13 +106,15 @@ public class Team {
             // обновим время записи
             playerData.setTimestamp(System.currentTimeMillis());
             if (Status.CALLED_FRIENDS == status) {
-                return player + " вписался. Итого: " + getTotal();
+                return String.format("%s вписался%s. Итого: %s", player, joke.orElse(StringUtils.EMPTY), getTotal());
             }
             return player + " поменял статус с '" + status.getStatus() + "' на '" + Status.READY.getStatus() + "'. Итого: " + getTotal();
         }
     }
 
-    public String doNotKnow(String player) {
+    public String doNotKnow(Pair<Long, String> playerWithID) {
+        Long id = playerWithID.getLeft();
+        String player = playerWithID.getRight();
         PlayerData playerData = team.get(player);
         if (playerData == null) {
             PlayerData data = new PlayerData(Status.DOES_NOT_KNOW);
@@ -130,7 +133,9 @@ public class Team {
         }
     }
 
-    public String removeMe(String player) {
+    public String removeMe(Pair<Long, String> playerWithID) {
+        Long id = playerWithID.getLeft();
+        String player = playerWithID.getRight();
         PlayerData playerData = team.get(player);
         if (playerData == null) {
             PlayerData data = new PlayerData(Status.NOT_READY);
@@ -149,7 +154,9 @@ public class Team {
         }
     }
 
-    public String addFriends(String player, int number) {
+    public String addFriends(Pair<Long, String> playerWithID, int number) {
+        Long id = playerWithID.getLeft();
+        String player = playerWithID.getRight();
         PlayerData playerData = team.get(player);
         if (playerData == null) {
             PlayerData data = new PlayerData(Status.CALLED_FRIENDS);
@@ -161,7 +168,9 @@ public class Team {
         return player + " сделал +" + number + ". Итого: " + getTotal();
     }
 
-    public String removeFriends(String player, int number) {
+    public String removeFriends(Pair<Long, String> playerWithID, int number) {
+        Long id = playerWithID.getLeft();
+        String player = playerWithID.getRight();
         PlayerData playerData = team.get(player);
         if (playerData == null) {
             return player + " хотел сделать -" + number + ", но он столько не звал";
@@ -180,6 +189,6 @@ public class Team {
 
     public String serialize() throws JsonProcessingException {
         return mapper.writerWithDefaultPrettyPrinter()
-                     .writeValueAsString(team);
+                .writeValueAsString(team);
     }
 }

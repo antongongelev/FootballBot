@@ -3,6 +3,7 @@ package ru.telegrambot.domain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrBuilder;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -218,7 +219,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         teamService.save(team);
         CLEAR_TIMESTAMP = 0L;
         CLEAR_CODE = StringUtils.EMPTY;
-        sendMessage(getFrom(message) + " сбросил состав");
+        sendMessage(getFrom(message).getRight() + " сбросил состав");
     }
 
     private boolean isClearCode(Message message) {
@@ -273,14 +274,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                 "'-' - Сливаешься" + System.lineSeparator() +
                 (isIgnoreInterrogation() ? "" : "'?' - Под вопросом" + System.lineSeparator()) +
                 (isIgnoreAddition() ? "" : "'+n' - Плюсуешь n друзей (1-9)" + System.lineSeparator() +
-                "'-n' - Минусуешь n друзей (1-9)" + System.lineSeparator()) +
+                        "'-n' - Минусуешь n друзей (1-9)" + System.lineSeparator()) +
                 "'Состав' - Узнать состав" + System.lineSeparator() +
                 "'Сброс' - Сброс состава";
     }
 
-    private String getFrom(Message message) {
+    private Pair<Long, String> getFrom(Message message) {
         String playerName;
         User user = message.getFrom();
+
+        Long userID = user.getId();
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
         String userName = user.getUserName();
@@ -297,7 +300,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         String s1 = playerName.replaceAll("_", "-");
         String s2 = s1.replaceAll("@", "-");
-        return s2.replaceAll("&", "-");
+        String formattedName = s2.replaceAll("&", "-");
+
+        return Pair.of(userID, formattedName);
     }
 
     private void sendMessage(String message) {
