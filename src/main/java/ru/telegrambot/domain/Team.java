@@ -90,26 +90,31 @@ public class Team {
 
     public String addSelf(Pair<Long, String> playerWithID) {
         Long id = playerWithID.getLeft();
-        Optional<String> joke = PlayerTagService.getJokeByID(id);
+        Optional<Pair<String, Boolean>> jokeInfo = PlayerTagService.getJokeByID(id);
+        String joke = jokeInfo.map(Pair::getLeft).orElse(StringUtils.EMPTY);
+        String dot = jokeInfo.map(Pair::getRight).orElse(true) ? "." : StringUtils.EMPTY;
         String player = playerWithID.getRight();
         PlayerData playerData = team.get(player);
+
         if (playerData == null) {
             PlayerData data = new PlayerData(Status.READY);
             team.put(player, data);
-            return String.format("%s вписался%s. Итого: %s", player, joke.orElse(StringUtils.EMPTY), getTotal());
-        } else {
-            Status status = playerData.getStatus();
-            if (Status.READY == status) {
-                return player + " попытался вписаться, хотя уже был вписан";
-            }
-            playerData.setStatus(Status.READY);
-            // обновим время записи
-            playerData.setTimestamp(System.currentTimeMillis());
-            if (Status.CALLED_FRIENDS == status) {
-                return String.format("%s вписался%s. Итого: %s", player, joke.orElse(StringUtils.EMPTY), getTotal());
-            }
-            return player + " поменял статус с '" + status.getStatus() + "' на '" + Status.READY.getStatus() + "'. Итого: " + getTotal();
+            return String.format("%s вписался%s%s Итого: %s", player, joke, dot, getTotal());
         }
+
+        Status status = playerData.getStatus();
+        if (Status.READY == status) {
+            return player + " попытался вписаться, хотя уже был вписан";
+        }
+
+        playerData.setStatus(Status.READY);
+        playerData.setTimestamp(System.currentTimeMillis());
+
+        if (Status.CALLED_FRIENDS == status) {
+            return String.format("%s вписался%s%s Итого: %s", player, joke, dot, getTotal());
+        }
+
+        return player + " поменял статус с '" + status.getStatus() + "' на '" + Status.READY.getStatus() + "'. Итого: " + getTotal();
     }
 
     public String doNotKnow(Pair<Long, String> playerWithID) {
