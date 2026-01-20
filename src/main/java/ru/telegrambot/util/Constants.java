@@ -1,6 +1,5 @@
-package ru.telegrambot.domain;
+package ru.telegrambot.util;
 
-import java.time.DayOfWeek;
 import java.util.regex.Pattern;
 
 public interface Constants {
@@ -15,4 +14,5 @@ public interface Constants {
     Pattern PLUS_PATTERN = Pattern.compile("[+][1-9]");
     String DELIMITER = "======================";
     int CODE_LENGTH = 4;
+
 }

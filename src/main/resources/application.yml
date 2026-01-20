@@ -1,37 +1,38 @@
-domain:
-  bot:
-#     name: FOOTBALL_TEST_ANTON_BOT
-#     token: 6124382389:AAHdt2dGUo_cgyYhmSVy-aiooTKa5PWvMI4
-
-    name: CSITeamBot
-    token: 5007880884:AAGwLulWFc-OIbHRD0pnHa57Wqb_sgG01Qo
-
-#    name: PortugalFootballBot
-#    token: 6055053880:AAG9kbnyelO2bRfVWpYLl5T3SE2CLhOZ_18
-  chat:
-#          my test
-#     id: -832578892
-
-#           csi
-    id: -1001142763396
-
-#       portugal
-#    id: -100840047547
-  football:
-    day: Среда_21:00
-    check-in-before-hours: 56
-    send-team-report-before-hours: 1
-    is-ignore-addition: false
-    is-ignore-interrogation: false
 spring:
+
   datasource:
     url: jdbc:postgresql://localhost:5432/football_bot_db
     username: postgres
     password: postgres
+
   liquibase:
     enabled: true
-    change-log: classpath:db/changelog/db.changelog-master.xml
+    change-log: classpath:liquibase/changelog.yaml
+
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: validate
+
+domain:
+
+  bot:
+    name: override
+    token: override
+
+  teams:
+    - name: "csi"
+      chat_id: -1001142763396
+      day: Среда_21:00
+      check-in-before-hours: 56
+      send-team-report-before-hours: 1
+      ignore-addition: false
+      ignore-interrogation: false
+
+    - name: "ros_telecom"
+      chat_id: -1003541602308
+      day: Понедельник_21:00
+      check-in-before-hours: 32
+      send-team-report-before-hours: 1
+      ignore-addition: false
+      ignore-interrogation: false

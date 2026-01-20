@@ -1,4 +1,4 @@
-package ru.telegrambot.domain;
+package ru.telegrambot.util;
 
 public enum PlayerTag {
 

@@ -1,10 +1,20 @@
-package ru.telegrambot.domain;
+package ru.telegrambot.service;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import ru.telegrambot.util.PlayerTag;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
 
+@Service
 public class PlayerTagService {
 
     private static final int USED_JOKES_NUMBER = 10;
@@ -52,7 +62,7 @@ public class PlayerTagService {
         }});
     }};
 
-    public static synchronized Optional<Pair<String, Boolean>> getJokeByID(Long id) {
+    public synchronized Optional<Pair<String, Boolean>> getJokeByID(Long id) {
         PlayerTag playerTag = PLAYER_TAG_MAP.get(id);
         if (Objects.isNull(playerTag)) {
             return Optional.empty();
