@@ -1,6 +1,5 @@
 package ru.telegrambot.bot;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -15,11 +14,16 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final PropertyStorage propertyStorage;
     private final FootballService footballService;
+
+    public TelegramBot(PropertyStorage propertyStorage, FootballService footballService, TelegramBotOptions botOptions) {
+        super(botOptions.buildOptions());
+        this.propertyStorage = propertyStorage;
+        this.footballService = footballService;
+    }
 
     @PostConstruct
     private void initialize() throws TelegramApiException {
