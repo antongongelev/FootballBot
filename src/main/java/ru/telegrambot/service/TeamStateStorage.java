@@ -39,10 +39,10 @@ public class TeamStateStorage {
         return teamStates.get(teamName);
     }
 
-    public Optional<TeamState> getTeamStateByChatId(Long chatId) {
+    public Optional<TeamState> getTeamStateByChatId(String chatId) {
         return teamStates.values()
                 .stream()
-                .filter(teamState -> teamState.getTeamConfig().getChatId().equals(String.valueOf(chatId)))
+                .filter(teamState -> teamState.getTeamConfig().getChatId().equals(chatId))
                 .map(teamState -> teamStates.get(teamState.getTeamName()))
                 .findFirst();
     }

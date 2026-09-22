@@ -22,7 +22,7 @@ public class PlayerTagService {
     private static final Random RANDOM = new Random();
 
     private static final Map<Long, PlayerTag> PLAYER_TAG_MAP = new HashMap<Long, PlayerTag>() {{
-        put(377287783L, PlayerTag.AGGRESSIVE);
+//        put(377287783L, PlayerTag.AGGRESSIVE);
     }};
 
     private static final Map<PlayerTag, ArrayDeque<String>> USED_JOKES = new HashMap<PlayerTag, ArrayDeque<String>>() {{

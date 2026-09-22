@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import ru.telegrambot.configuration.PropertyStorage;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @Data
 @RequiredArgsConstructor
 public class TeamState {
@@ -13,6 +17,7 @@ public class TeamState {
     private boolean reportSent = false;
     private boolean checkInStarted = false;
     private String clearCode = StringUtils.EMPTY;
+    private final List<RetryMessage> retryMessages = Collections.synchronizedList(new ArrayList<>());
 
     private final PropertyStorage.TeamConfig teamConfig;
 
@@ -25,6 +30,7 @@ public class TeamState {
         reportSent = false;
         checkInStarted = false;
         clearCode = StringUtils.EMPTY;
+        retryMessages.clear();
     }
 
 }

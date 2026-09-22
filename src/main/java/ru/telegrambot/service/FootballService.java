@@ -17,6 +17,7 @@ import ru.telegrambot.entity.FootballPlayer;
 import ru.telegrambot.repository.FootballPlayerRepository;
 import ru.telegrambot.service.command.CommandExecutor;
 import ru.telegrambot.service.command.TeamExecutor;
+import ru.telegrambot.util.RetryMessage;
 import ru.telegrambot.util.TeamState;
 
 import java.util.List;
@@ -45,12 +46,12 @@ public class FootballService {
             return;
         }
 
-        Long chatId = message.getChatId();
+        String chatId = String.valueOf(message.getChatId());
         String formattedText = message.getText().replaceAll(" ", StringUtils.EMPTY).toUpperCase();
 
         Optional<TeamState> teamState = stateStorage.getTeamStateByChatId(chatId);
         if (!teamState.isPresent()) {
-            sendMessage("Этот бот не предназначен для данного чата", chatId.toString());
+            sendMessage("Этот бот не предназначен для данного чата", chatId);
             return;
         }
 
@@ -61,11 +62,11 @@ public class FootballService {
         if (executor.isPresent()) {
             Pair<Long, String> user = userService.getUserFromMessage(message);
             String executionMessage = executor.get().executeAndGetMessage(user, formattedText, teamState.get());
-            sendMessage(executionMessage, String.valueOf(chatId));
+            sendMessage(executionMessage, chatId);
         }
     }
 
-    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     public void scheduledTask() {
         stateStorage.getTeamStates().forEach((teamName, teamState) -> {
 
@@ -101,11 +102,31 @@ public class FootballService {
                     teamState.setReportSent(true);
                 }
 
+                teamState.getRetryMessages()
+                        .stream()
+                        .filter(retryMessage -> !retryMessage.isSuccess())
+                        .filter(retryMessage -> retryMessage.getRetries() < retryMessage.getMaxReties())
+                        .forEach(this::resendMessage);
+
             } catch (Exception e) {
                 log.error("Error during scheduledTask for team '{}'", teamName, e);
             }
 
         });
+    }
+
+    private void resendMessage(RetryMessage retryMessage) {
+        int retries = retryMessage.getRetries() + 1;
+        retryMessage.setRetries(retries);
+
+        try {
+            telegramBot.execute(retryMessage.getMessage());
+            retryMessage.setSuccess(true);
+            log.info("Telegram message successfully resent after {} retries", retryMessage.getRetries());
+
+        } catch (TelegramApiException e) {
+            log.error("Can't resend telegram message. Reason: '{}'. Retry: {}/{}", e.getMessage(), retryMessage.getRetries(), retryMessage.getMaxReties());
+        }
     }
 
     private void sendMessage(String message, String chatId) {
@@ -120,8 +141,10 @@ public class FootballService {
 
         try {
             telegramBot.execute(sendMessage);
+
         } catch (TelegramApiException e) {
-            log.error("Can't send telegram message", e);
+            log.error("Can't send telegram message. Reason: '{}'. Add to retry queue", e.getMessage());
+            stateStorage.getTeamStateByChatId(chatId).ifPresent(teamState -> teamState.getRetryMessages().add(new RetryMessage(sendMessage)));
         }
     }
 
