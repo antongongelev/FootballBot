@@ -1,29 +1,29 @@
 spring:
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/football_bot_db
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/football_bot_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
 
   liquibase:
-    enabled: true
+    enabled: ${LIQUIBASE_ENABLED:true}
     change-log: classpath:liquibase/changelog.yaml
 
   jpa:
-    show-sql: true
+    show-sql: ${SHOW_SQL:true}
     hibernate:
       ddl-auto: validate
 
 domain:
 
   proxy:
-    enabled: true
-    host: 127.0.0.1
-    port: 10810
+    enabled: ${PROXY_ENABLED:false}
+    host: ${PROXY_HOST:127.0.0.1}
+    port: ${PROXY_PORT:10810}
 
   bot:
-    name: override
-    token: override
+    name: ${BOT_NAME:botName}
+    token: ${BOT_TOKEN:token}
 
   teams:
     - name: "csi"
@@ -34,9 +34,17 @@ domain:
       ignore-addition: false
       ignore-interrogation: false
 
-    - name: "ros_telecom"
+    - name: "rostelecom"
       chat_id: -1003541602308
       day: Понедельник_21:00
+      check-in-before-hours: 32
+      send-team-report-before-hours: 1
+      ignore-addition: false
+      ignore-interrogation: false
+
+    - name: "test"
+      chat_id: -4250078193
+      day: Пятница_21:00
       check-in-before-hours: 32
       send-team-report-before-hours: 1
       ignore-addition: false
